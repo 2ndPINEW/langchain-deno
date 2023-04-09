@@ -58,6 +58,9 @@ export class MyAgent {
       const toolOutput = await tool.call(action);
       return toolOutput;
     } catch (e) {
+      if (action.tool === this.tools[0].name) {
+        return `GPT呼び出しでエラーが発生しました: ${e}`;
+      }
       console.error("Error while tool calling: ", e);
       action.tool = this.tools[0].name;
       return await this.executeAction(action);
