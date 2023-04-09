@@ -70,6 +70,7 @@ export const handler = async (
   return new Response(JSON.stringify(res), {
     headers: {
       "content-type": "application/json",
+      "Access-Control-Allow-Origin": "*",
     },
   });
 };
