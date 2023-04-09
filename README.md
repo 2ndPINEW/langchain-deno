@@ -1,5 +1,7 @@
 # fresh project
 
+ほぼ langchain じゃないキメラ
+
 ### Usage
 
 Start the project:
