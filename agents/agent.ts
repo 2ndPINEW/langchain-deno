@@ -53,7 +53,7 @@ export class MyAgent {
     const tool =
       this.tools.find((tool) => tool.name === action.tool) ?? this.tools[0];
     tool.openAIApiKey = this.openAIApiKey;
-    this.actionHistory.push(action);
+    this.actionHistory.push(JSON.parse(JSON.stringify(action)));
     try {
       const toolOutput = await tool.call(action);
       return toolOutput;

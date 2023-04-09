@@ -2,6 +2,7 @@ import { HandlerContext } from "$fresh/server.ts";
 import { ChatMessage, MyAgent } from "../../agents/agent.ts";
 import { GptAPI } from "../../agents/tools/gpt.ts";
 import { SearchAPI } from "../../agents/tools/search.ts";
+import { SummaryAPI } from "../../agents/tools/summary.ts";
 
 export const handler = async (
   req: Request,
@@ -45,6 +46,7 @@ export const handler = async (
         googleApiKey: googleApiKey,
         googleCustomSearchEngineId: googleCustomSearchEngineId,
       }),
+      new SummaryAPI(),
     ],
   });
   const action = await agent.decideAction({
