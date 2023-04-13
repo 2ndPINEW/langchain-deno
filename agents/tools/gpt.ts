@@ -1,3 +1,4 @@
+import { conversation } from "../../utils/gpt.ts";
 import { Action } from "../agent.ts";
 import { Tool } from "./tool.ts";
 
@@ -18,21 +19,12 @@ export class GptAPI implements Tool {
   }
 
   async call(action: Action): Promise<string> {
-    const chatHistory = JSON.parse(JSON.stringify(action.history));
-    chatHistory.push({ content: action.userInput, role: "user" });
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.openAIApiKey}`,
-      },
-      body: JSON.stringify({
-        messages: chatHistory,
-        model: this.modelName,
-      }),
+    const data = await conversation({
+      openAIApiKey: this.openAIApiKey,
+      history: action.history,
+      input: action.userInput,
+      role: "user",
     });
-    action.toolLog.push({ operation: "use model", detail: this.modelName });
-    const data = await res.json();
-    return data.choices[0].message.content;
+    return data;
   }
 }

@@ -1,13 +1,5 @@
-import { OpenAI } from "langchain";
-import { ConversationChain } from "langchain/chains";
-import { BufferMemory, ChatMessageHistory } from "langchain/memory";
-import { AIChatMessage, HumanChatMessage } from "langchain/schema";
 import { Tool } from "./tools/tool.ts";
-
-export interface ChatMessage {
-  role: "user" | "assistant" | "system";
-  content: string;
-}
+import { ChatMessage, conversation } from "../utils/gpt.ts";
 
 export interface Action {
   tool: string;
@@ -71,30 +63,17 @@ export class MyAgent {
     input: string;
     history: ChatMessage[];
   }): Promise<Action> {
-    const model = new OpenAI({
-      streaming: true,
+    const prompt = this.agentPrompt(args);
+
+    const res = await conversation({
       openAIApiKey: this.openAIApiKey,
       modelName: this.modelName,
+      history: args.history,
+      input: prompt,
+      role: "system",
     });
 
-    const agentHistory = args.history.map((message) => {
-      return message.role === "assistant"
-        ? new AIChatMessage(message.content)
-        : new HumanChatMessage(message.content);
-    });
-    const agentMemory = new BufferMemory({
-      returnMessages: true,
-      chatHistory: new ChatMessageHistory(
-        agentHistory.length === 0 ? undefined : agentHistory
-      ),
-    });
-
-    const chain = new ConversationChain({ llm: model, memory: agentMemory });
-
-    const prompt = this.agentPrompt(args);
-    const res = await chain.call({ input: prompt });
-
-    const action = this.parseAgent(res.response, args.input, args.history);
+    const action = this.parseAgent(res, args.input, args.history);
     return action;
   }
 

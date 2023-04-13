@@ -2,6 +2,7 @@ import { Action } from "../agent.ts";
 import { Tool } from "./tool.ts";
 import { google } from "googleapis";
 import { extractFromHtml } from "article-extractor";
+import { conversation } from "../../utils/gpt.ts";
 
 export class SearchAPI implements Tool {
   name: string;
@@ -36,8 +37,11 @@ export class SearchAPI implements Tool {
     const prompt = `'${action.userInput}'この質問に対して、以下の検索結果から答えてください。回答はなるべく自然な言葉遣いになるようにしてください。
     \n${resultList}
     `;
-    const finalAnswer = await this.promptGpt(prompt);
-    console.log("finalAnswer: ", finalAnswer);
+    const finalAnswer = await conversation({
+      openAIApiKey: this.openAIApiKey,
+      input: prompt,
+      role: "user",
+    });
     return finalAnswer;
   }
 
@@ -66,24 +70,6 @@ export class SearchAPI implements Tool {
     return article.content;
   }
 
-  async promptGpt(prompt: string): Promise<string> {
-    const chatHistory = [{ content: prompt, role: "user" }];
-
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.openAIApiKey}`,
-      },
-      body: JSON.stringify({
-        messages: chatHistory,
-        model: "gpt-3.5-turbo",
-      }),
-    });
-    const data = await res.json();
-    return data.choices[0].message.content;
-  }
-
   async isValidArticle(action: Action, article: string): Promise<boolean> {
     const prompt = `Determine if the text you have entered provides information to answer the question text.
 Question: ${action.toolInput}
@@ -94,7 +80,11 @@ Use the following format:
 
 Yes or No`;
 
-    const result = await this.promptGpt(prompt);
+    const result = await conversation({
+      openAIApiKey: this.openAIApiKey,
+      input: prompt,
+      role: "user",
+    });
     if (result.includes("Yes")) return true;
     return false;
   }
@@ -106,7 +96,11 @@ Yes or No`;
     const prompt = `以下の質問に対する回答を与えられた文章の中から探して答えてください。回答は日本語でしてください。
 質問: ${action.userInput}
 文章: ${article}`;
-    const result = await this.promptGpt(prompt);
+    const result = await conversation({
+      openAIApiKey: this.openAIApiKey,
+      input: prompt,
+      role: "user",
+    });
     return result;
   }
 

@@ -1,8 +1,9 @@
 import { HandlerContext } from "$fresh/server.ts";
-import { ChatMessage, MyAgent } from "../../agents/agent.ts";
+import { MyAgent } from "../../agents/agent.ts";
 import { GptAPI } from "../../agents/tools/gpt.ts";
 import { SearchAPI } from "../../agents/tools/search.ts";
 import { SummaryAPI } from "../../agents/tools/summary.ts";
+import { ChatMessage } from "../../utils/gpt.ts";
 
 export const handler = async (
   req: Request,
