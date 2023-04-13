@@ -10,4 +10,4 @@ RUN deno cache main.ts --import-map=import_map.json
 
 EXPOSE 8080
 
-CMD ["run", "-A", "main.ts"]
+CMD ["run", "-A", "main.ts", "--lock=deno.lock", "--lock-write"]
